@@ -46,7 +46,6 @@
       padding:0 10px;
       box-sizing:border-box;
     }
-    /* MOBILE: 2 cols, tablet 3+, desktop auto-fit */
     @media (max-width:700px) {
       .menu { grid-template-columns: repeat(2, minmax(140px, 1fr)); gap:10px; padding:0 4px; }
     }
@@ -113,9 +112,39 @@
     .cart-list li { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; color:#333; }
     .cart-total { font-size:1.05em; color:#222; margin-bottom:11px; text-align:right; font-weight:800;}
     .cart-close { position:absolute; right:10px; top:8px; font-size:1.5em; color:var(--brand-olive); background:none; border:none; cursor:pointer;}
-    .order-form input, .order-form textarea, .order-form select {width:100%; padding:8px; margin-bottom:8px; border-radius:8px; border:1px solid #ddd; font-size:0.98em;}
+    .order-form input, .order-form textarea, .order-form select {width:100%; padding:8px; margin-bottom:8px; border-radius:8px; border:1px solid #ddd; font-size:0.98em; box-sizing:border-box;}
     .order-btn {background:var(--accent); color:#fff; border:none; border-radius:8px; padding:10px 18px; font-size:1.03em; font-weight:800; cursor:pointer; width:100%; margin-top:8px;letter-spacing:1px;}
     .order-success {color:#2e7d32; font-size:1.06em; text-align:center; margin-top:10px;}
+    .delivery-info {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 12px;
+      font-size: 0.90em;
+      color: #856404;
+      line-height: 1.5;
+    }
+    .delivery-info-title {
+      font-weight: 800;
+      color: var(--brand-olive);
+      margin-bottom: 6px;
+      font-size: 1.05em;
+    }
+    .delivery-info ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .delivery-info li {
+      margin-bottom: 3px;
+    }
+    .form-hint {
+      font-size: 0.85em;
+      color: #d32f2f;
+      margin-top: -6px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
   </style>
 </head>
 <body>
@@ -147,7 +176,6 @@
     let menuData = [];
     let cart = {};
 
-    // Вьетнамский донг вместо рубля!
     const VND_FMT = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 });
 
     function escapeHtml(s){ return String(s || '').replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]); }
@@ -252,13 +280,31 @@
           <div class="cart-total">Итого: ${VND_FMT.format(total)}</div>
           <form class="order-form" id="orderForm">
             <input type="text" id="name" placeholder="Ваш Telegram username (без @)" required>
+            <div class="form-hint">⚠️ Обязательно укажите точный Telegram username для связи!</div>
+            
             <input type="tel" id="phone" placeholder="Телефон" required>
+            <div class="form-hint">⚠️ Укажите номер телефона для обратной связи!</div>
+            
             <input type="text" id="address" placeholder="Адрес доставки" required>
+            
+            <div class="delivery-info">
+              <div class="delivery-info-title">📍 Информация о доставке:</div>
+              <ul>
+                <li><strong>Центр</strong> - Бесплатно от 150 VND (до 150 VND - 20 VND)</li>
+                <li><strong>Север</strong> - от 40 VND</li>
+                <li><strong>Район Coopmart, Луизиана, Z Beach</strong> - от 40 VND</li>
+                <li><strong>Big C, за Coopmart (в сторону Юга)</strong> - от 45 VND</li>
+                <li><strong>Юг, Анвьен</strong> - от 50 VND</li>
+                <li><strong>За мостом после Coopmart, My Gia, за Big C</strong> - от 60 VND</li>
+              </ul>
+            </div>
+            
             <select id="payment">
               <option value="">Способ оплаты (необязательно)</option>
-              <option value="cash">Наличные</option>
               <option value="qr">QR (оплатить через скан)</option>
+              <option value="cash">Наличные</option>
             </select>
+            
             <textarea id="comment" placeholder="Комментарий к заказу (необязательно)" rows="2"></textarea>
             <button type="submit" class="order-btn">Оформить заказ</button>
             <div id="orderSuccess" class="order-success" style="display:none;"></div>
@@ -283,7 +329,7 @@
       const btn = document.querySelector('.order-btn');
       btn.disabled = true;
       btn.textContent = 'Отправка...';
-      const name = document.getElementById('name').value.trim(); // username без @ !
+      const name = document.getElementById('name').value.trim();
       const phone = document.getElementById('phone').value.trim();
       const address = document.getElementById('address').value.trim();
       const payment = document.getElementById('payment').value;
@@ -306,7 +352,6 @@
         (comment?`Комментарий: ${comment}\n`:'') +
         `\nЗаказ:\n${orderLines}\n\nСумма: ${VND_FMT.format(total)}`;
 
-      // Сообщение оператору с инлайн-кнопками, где в data username!
       const msg = {
         chat_id: TELEGRAM_OPERATOR_CHAT_ID,
         text,
@@ -342,7 +387,6 @@
       }
     }
 
-    // run
     loadMenu();
   </script>
 </body>
